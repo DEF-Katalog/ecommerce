@@ -71,19 +71,31 @@ function saveProduct() {
 
   if (!currentProduct ||
       Object.keys(currentProduct.variants).length === 0)
-    return alert("Minimal 1 variant!");
+    return showToast("Minimal 1 ukuran!", "danger");
 
   if (editingId) {
+
+    // UPDATE DATA
     productService.update(editingId, currentProduct);
+
     showToast("Produk berhasil diperbarui!", "warning");
+
     editingId = null;
-    document.getElementById("saveProductBtn").innerText = "Simpan Produk";
+
   } else {
+
+    // TAMBAH BARU
     productService.save(currentProduct);
+
     showToast("Produk berhasil ditambahkan!", "success");
   }
 
-  resetForm();
+  // Reset form
+  currentProduct = null;
+  document.getElementById("variantPreview").innerHTML = "";
+  document.getElementById("name").value = "";
+  document.getElementById("description").value = "";
+  document.getElementById("image").value = "";
 }
 
 function resetForm() {
@@ -129,27 +141,33 @@ window.editProduct = function(id) {
 
   const product = dataCache[id];
 
+  if (!product) return;
+
+  editingId = id;
+
   document.getElementById("name").value = product.name;
   document.getElementById("description").value = product.description;
-  document.getElementById("image").value = product.image;
+  document.getElementById("image").value = product.image || "";
 
+  // Reset preview
+  document.getElementById("variantPreview").innerHTML = "";
+
+  // Buat ulang currentProduct
   currentProduct = new Product(
     product.name,
     product.description,
     product.image
   );
 
-  document.getElementById("variantPreview").innerHTML = "";
-
-  for (let key in product.variants) {
-    const v = product.variants[key];
-
-    currentProduct.addVariant(v.size, v.price);
+  // Masukkan ulang variants
+  for (let size in product.variants) {
+    currentProduct.addVariant(size, product.variants[size]);
 
     document.getElementById("variantPreview").innerHTML +=
-      `<div>${v.size} - Rp ${Number(v.price).toLocaleString()}</div>`;
+      `<div class="variant-box">
+        ${size} - Rp ${Number(product.variants[size]).toLocaleString()}
+      </div>`;
   }
 
-  editingId = id;
-  document.getElementById("saveProductBtn").innerText = "Update Produk";
+  showToast("Mode edit aktif", "warning");
 };
