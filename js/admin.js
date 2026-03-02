@@ -67,35 +67,29 @@ function addVariant() {
   document.getElementById("price").value = "";
 }
 
-function saveProduct() {
+async function saveProduct() {
 
   if (!currentProduct ||
       Object.keys(currentProduct.variants).length === 0)
-    return showToast("Minimal 1 ukuran!", "danger");
+    return showToast("Minimal 1 variant!", "danger");
 
   if (editingId) {
 
-    // UPDATE DATA
-    productService.update(editingId, currentProduct);
+    await productService.update(editingId, currentProduct);
 
     showToast("Produk berhasil diperbarui!", "warning");
 
     editingId = null;
+    document.getElementById("saveProductBtn").innerText = "Simpan Produk";
 
   } else {
 
-    // TAMBAH BARU
-    productService.save(currentProduct);
+    await productService.save(currentProduct);
 
     showToast("Produk berhasil ditambahkan!", "success");
   }
 
-  // Reset form
-  currentProduct = null;
-  document.getElementById("variantPreview").innerHTML = "";
-  document.getElementById("name").value = "";
-  document.getElementById("description").value = "";
-  document.getElementById("image").value = "";
+  resetForm();
 }
 
 function resetForm() {
@@ -144,6 +138,7 @@ window.editProduct = function(id) {
   if (!product) return;
 
   editingId = id;
+  document.getElementById("saveProductBtn").innerText = "Update Produk";
 
   document.getElementById("name").value = product.name;
   document.getElementById("description").value = product.description;
