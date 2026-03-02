@@ -3,7 +3,7 @@ export default class Product {
   constructor(name, description, image) {
     this.name = name;
     this.description = description;
-    this.images = [image];
+    this.image = image;
     this.variants = {};
   }
 
@@ -14,5 +14,4 @@ export default class Product {
       price: Number(price)
     };
   }
-
 }
