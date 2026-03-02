@@ -102,12 +102,33 @@ window.deleteProduct = function(id) {
 
 window.editProduct = function(id) {
 
-  const product = dataCache[id]; // nanti kita buat cache
+  const product = dataCache[id];
 
   document.getElementById("name").value = product.name;
   document.getElementById("description").value = product.description;
+  document.getElementById("image").value = product.image;
+
+  currentProduct = new Product(
+    product.name,
+    product.description,
+    product.image
+  );
+
+  // Load variants
+  document.getElementById("variantPreview").innerHTML = "";
+
+  for (let key in product.variants) {
+    const v = product.variants[key];
+
+    currentProduct.addVariant(v.size, v.price);
+
+    document.getElementById("variantPreview").innerHTML +=
+      `<div class="variant-box">
+        ${v.size} - Rp ${Number(v.price).toLocaleString()}
+       </div>`;
+  }
 
   editingId = id;
 
-  document.getElementById("submitBtn").innerText = "Update Produk";
+  document.getElementById("saveProductBtn").innerText = "Update Produk";
 };
