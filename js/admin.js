@@ -1,0 +1,91 @@
+import Product from "./models/Product.js";
+import ProductService from "./services/ProductService.js";
+import { ref, remove }
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { db } from "./firebase.js";
+
+const productService = new ProductService();
+let currentProduct = null;
+
+document
+  .getElementById("addVariantBtn")
+  .addEventListener("click", addVariant);
+
+document
+  .getElementById("saveProductBtn")
+  .addEventListener("click", saveProduct);
+
+function addVariant() {
+
+  if (!currentProduct) {
+    const name = document.getElementById("name").value;
+    const description = document.getElementById("description").value;
+    const image = document.getElementById("image").value;
+
+    if (!name) return alert("Isi nama produk dulu!");
+
+    currentProduct = new Product(name, description, image);
+  }
+
+  const size = document.getElementById("size").value;
+  const price = document.getElementById("price").value;
+
+  if (!size || !price) return alert("Isi ukuran & harga");
+
+  currentProduct.addVariant(size, price);
+
+  document.getElementById("variantPreview").innerHTML +=
+    `<div class="variant-box">
+      ${size} - Rp ${Number(price).toLocaleString()}
+     </div>`;
+
+  document.getElementById("size").value = "";
+  document.getElementById("price").value = "";
+}
+
+function saveProduct() {
+
+  if (!currentProduct ||
+      Object.keys(currentProduct.variants).length === 0)
+    return alert("Minimal 1 ukuran!");
+
+  productService.save(currentProduct);
+
+  alert("Produk disimpan!");
+
+  currentProduct = null;
+  document.getElementById("variantPreview").innerHTML = "";
+  document.getElementById("name").value = "";
+  document.getElementById("description").value = "";
+  document.getElementById("image").value = "";
+}
+
+productService.listen((data) => {
+
+  const list = document.getElementById("adminProductList");
+  list.innerHTML = "";
+
+  if (!data) return;
+
+  for (let id in data) {
+
+    const product = data[id];
+
+    list.innerHTML += `
+      <div class="card">
+        <h3>${product.name}</h3>
+        <button onclick="deleteProduct('${id}')">
+          Hapus
+        </button>
+      </div>
+    `;
+  }
+
+});
+
+window.deleteProduct = function(id) {
+
+  if (!confirm("Yakin hapus?")) return;
+
+  remove(ref(db, "products/" + id));
+};
