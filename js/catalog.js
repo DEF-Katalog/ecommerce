@@ -1,23 +1,51 @@
-import ProductService from "./services/ProductService.js";
+// ===== IMPORT FIREBASE =====
+import { db } from "./firebase.js";
+import {
+  collection,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-const productService = new ProductService();
+// ===== REFERENSI COLLECTION =====
+const productRef = collection(db, "products");
 
-productService.listen((data) => {
+// ===== AMBIL DATA REALTIME =====
+onSnapshot(productRef, (snapshot) => {
+  const products = [];
 
-  function renderProducts(products) {
+  snapshot.forEach(doc => {
+    products.push({
+      id: doc.id,
+      ...doc.data()
+    });
+  });
+
+  renderProducts(products);
+});
+
+// ===== RENDER PRODUK =====
+function renderProducts(products) {
   const container = document.getElementById("productList");
   container.innerHTML = "";
 
+  if (products.length === 0) {
+    container.innerHTML = "<p>Belum ada produk.</p>";
+    return;
+  }
+
   products.forEach(product => {
-    const sizesHTML = product.sizes.map(size => `
+
+    // 🔹 Handle jika sizes kosong / tidak ada
+    const sizes = product.sizes || [];
+
+    const sizesHTML = sizes.map(size => `
       <div class="size-item">
-        ${size.size} - Rp ${size.price.toLocaleString()}
+        ${size.size} - Rp ${Number(size.price).toLocaleString("id-ID")}
       </div>
     `).join("");
 
     const card = `
       <div class="product-card">
-        <img src="${product.imageUrl}" alt="${product.name}">
+        <img src="${product.imageUrl || 'https://via.placeholder.com/300'}" alt="${product.name}">
         <div class="product-info">
           <h3>${product.name}</h3>
           <div class="size-list">
@@ -30,5 +58,3 @@ productService.listen((data) => {
     container.innerHTML += card;
   });
 }
-
-});
