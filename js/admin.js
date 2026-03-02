@@ -5,6 +5,7 @@ from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 import { db } from "./firebase.js";
 
 const productService = new ProductService();
+let editingId = null;
 let currentProduct = null;
 
 document
