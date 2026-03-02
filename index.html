@@ -51,13 +51,18 @@
   <div id="productList"></div>
 
   <script type="module">
-
 // Import Firebase dari CDN resmi
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import { 
+      getDatabase, 
+      ref, 
+      push, 
+      set, 
+      onValue 
+    } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-// Config dari Firebase Console (copy dari sana)
-  const firebaseConfig = {
+    // 🔥 GANTI DENGAN CONFIG PUNYAMU
+      const firebaseConfig = {
     apiKey: "AIzaSyB9kmOi6YEbpzZoh0QQFbYlLa9-dwahJcc",
     authDomain: "produk-31441.firebaseapp.com",
     databaseURL: "https://produk-31441-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -65,21 +70,12 @@ import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.10.
     storageBucket: "produk-31441.firebasestorage.app",
     messagingSenderId: "340683244141",
     appId: "1:340683244141:web:51e139fa38be881cd7f564"
-};
+    };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const productsRef = ref(db, "products");
-    
-// Test koneksi
-set(ref(db, "connectionTest"), {
-  status: "Firebase Connected!"
-});
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-console.log("🔥 Firebase Connected");
-    
-
+    const productsRef = ref(db, "products");
 
     // 🔹 Tambah Produk
     window.addProduct = function() {
@@ -160,4 +156,3 @@ console.log("🔥 Firebase Connected");
 
 </body>
 </html>
-
