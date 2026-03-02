@@ -20,3 +20,10 @@ export default class ProductService {
   }
 
 }
+
+import { ref, set } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+
+async update(id, product) {
+  await set(ref(this.db, "products/" + id), product);
+}
