@@ -18,6 +18,28 @@ document
   .getElementById("saveProductBtn")
   .addEventListener("click", saveProduct);
 
+function showToast(message, type) {
+
+  const toast = document.getElementById("toast");
+
+  toast.innerText = message;
+  toast.className = "";
+  toast.classList.add("show");
+
+  if (type === "success")
+    toast.classList.add("toast-success");
+
+  if (type === "warning")
+    toast.classList.add("toast-warning");
+
+  if (type === "danger")
+    toast.classList.add("toast-danger");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3000);
+}
+
 function addVariant() {
 
   if (!currentProduct) {
