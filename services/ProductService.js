@@ -28,4 +28,15 @@ export class ProductService {
   static async deleteProduct(id) {
   await remove(ref(db, "products/" + id));
 }
+
+// untuk mengubah data dari firebase
+  static async getProductById(id) {
+  const snapshot = await get(ref(db, "products/" + id));
+  if (!snapshot.exists()) return null;
+
+  return {
+    id,
+    ...snapshot.val()
+  };
+}
 }
