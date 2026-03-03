@@ -3,6 +3,7 @@ import { Variant } from "../models/Variant.js";
 import { ProductService } from "../services/ProductService.js";
 import { AdminUI } from "./AdminUI.js";
 import { AdminState } from "./AdminState.js";
+import { AdminValidator } from "./AdminValidator.js";
 
 const addVariantBtn = document.getElementById("addVariantBtn");
 const saveProductBtn = document.getElementById("saveProductBtn");
@@ -27,10 +28,18 @@ async function loadProducts() {
 saveProductBtn.addEventListener("click", async () => {
 
   const formData = AdminUI.getFormData();
+
+  const errors = AdminValidator.validate(formData);
+
+  if (Object.keys(errors).length > 0) {
+    AdminUI.showErrors(errors);
+    return;
+  }
+
   const product = new Product(formData.name, formData.desc);
 
   formData.variants.forEach(v => {
-    product.addVariant(new Variant(v.name, v.price));
+    product.addVariant(new Variant(v.name, Number(v.price)));
   });
 
   if (AdminState.editMode) {
