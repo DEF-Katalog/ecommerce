@@ -23,6 +23,7 @@ addVariantBtn.addEventListener("click", () => {
   variantContainer.appendChild(variantDiv);
 });
 
+//event save
 saveProductBtn.addEventListener("click", async () => {
   const name = document.getElementById("productName").value;
   const desc = document.getElementById("productDesc").value;
@@ -40,9 +41,17 @@ saveProductBtn.addEventListener("click", async () => {
     product.addVariant(variant);
   });
 
-  const productId = await ProductService.saveProduct(product);
+  if (editMode) {
+  await ProductService.updateProduct(currentEditId, product);
+  alert("Produk berhasil diupdate");
+  editMode = false;
+  currentEditId = null;
+  saveProductBtn.textContent = "Simpan Produk";
+} else {
+  await ProductService.saveProduct(product);
+  alert("Produk berhasil disimpan");
+}
 
-  alert("Produk berhasil disimpan dengan ID: " + productId);
   loadProducts();
 });
 
@@ -64,11 +73,41 @@ async function loadProducts() {
     `;
 
     productList.appendChild(div);
-    
+
+    // event delete
     div.querySelector(".deleteBtn").addEventListener("click", async (e) => {
       const id = e.target.dataset.id;
       await ProductService.deleteProduct(id);
       loadProducts();
+});
+
+    // event edit
+    div.querySelector(".editBtn").addEventListener("click", async (e) => {
+  const id = e.target.dataset.id;
+
+  const product = await ProductService.getProductById(id);
+
+  document.getElementById("productName").value = product.name;
+  document.getElementById("productDesc").value = product.description;
+
+  variantContainer.innerHTML = "";
+
+  product.variants.forEach(variant => {
+    const variantDiv = document.createElement("div");
+
+    variantDiv.innerHTML = `
+      <input type="text" class="variantName" value="${variant.name}">
+      <input type="number" class="variantPrice" value="${variant.price}">
+      <br><br>
+    `;
+
+    variantContainer.appendChild(variantDiv);
+  });
+
+  editMode = true;
+  currentEditId = id;
+
+  saveProductBtn.textContent = "Update Produk";
 });
   });
 }
