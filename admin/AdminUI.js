@@ -19,6 +19,7 @@ export const AdminUI = {
     return { name, desc, variants };
   },
 
+  
   resetForm() {
     document.getElementById("productName").value = "";
     document.getElementById("productDesc").value = "";
@@ -131,6 +132,16 @@ formatRupiah(value) {
 
 cleanNumber(value) {
   return value.replace(/[^0-9]/g, "");
+},
+
+attachPriceFormatter() {
+  document.querySelectorAll(".variantPrice").forEach(input => {
+
+    input.addEventListener("input", (e) => {
+      e.target.value = this.formatRupiah(e.target.value);
+    });
+
+  });
 },
 
 };
