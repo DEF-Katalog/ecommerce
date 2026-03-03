@@ -1,62 +1,12 @@
 import { Product } from "../models/Product.js";
 import { Variant } from "../models/Variant.js";
 import { ProductService } from "../services/ProductService.js";
+import { AdminUI } from "./AdminUI.js";
+import { AdminState } from "./AdminState.js";
 
-const variantContainer = document.getElementById("variantContainer");
 const addVariantBtn = document.getElementById("addVariantBtn");
 const saveProductBtn = document.getElementById("saveProductBtn");
 const cancelEditBtn = document.getElementById("cancelEditBtn");
-const productList = document.getElementById("productList");
-
-let editMode = false;
-let currentEditId = null;
-
-/* ===============================
-   TAMBAH VARIAN
-=================================*/
-addVariantBtn.addEventListener("click", () => {
-  const variantDiv = document.createElement("div");
-
-  variantDiv.innerHTML = `
-    <input type="text" placeholder="Nama Varian" class="variantName">
-    <input type="number" placeholder="Harga" class="variantPrice">
-    <br><br>
-  `;
-
-  variantContainer.appendChild(variantDiv);
-});
-
-/* ===============================
-   SIMPAN / UPDATE PRODUK
-=================================*/
-saveProductBtn.addEventListener("click", async () => {
-  const name = document.getElementById("productName").value;
-  const desc = document.getElementById("productDesc").value;
-
-  const product = new Product(name, desc);
-
-  const variantNames = document.querySelectorAll(".variantName");
-  const variantPrices = document.querySelectorAll(".variantPrice");
-
-  variantNames.forEach((input, index) => {
-    const variant = new Variant(
-      input.value,
-      variantPrices[index].value
-    );
-    product.addVariant(variant);
-  });
-
-  if (editMode) {
-    await ProductService.updateProduct(currentEditId, product);
-    alert("Produk berhasil diupdate");
-  } else {
-    await ProductService.saveProduct(product);
-    alert("Produk berhasil disimpan");
-  }
-
-  loadProducts();
-  resetForm();
-});
 
 /* ===============================
    LOAD PRODUK
@@ -64,85 +14,77 @@ saveProductBtn.addEventListener("click", async () => {
 async function loadProducts() {
   const products = await ProductService.getAllProducts();
 
-  productList.innerHTML = "";
+  AdminUI.renderProducts(
+    products,
+    handleEdit,
+    handleDelete
+  );
+}
 
-  products.forEach(product => {
-    const div = document.createElement("div");
-    div.classList.add("product-card");
+/* ===============================
+   HANDLE SAVE
+=================================*/
+saveProductBtn.addEventListener("click", async () => {
 
-    div.innerHTML = `
-      <h3>${product.name}</h3>
-      <p>${product.description}</p>
-      <p>Total Varian: ${product.variants?.length || 0}</p>
+  const formData = AdminUI.getFormData();
+  const product = new Product(formData.name, formData.desc);
 
-      <button class="editBtn" data-id="${product.id}">Edit</button>
-      <button class="deleteBtn" data-id="${product.id}">Delete</button>
-      <hr>
-    `;
-
-    /* DELETE */
-    div.querySelector(".deleteBtn").addEventListener("click", async (e) => {
-      const id = e.target.dataset.id;
-      await ProductService.deleteProduct(id);
-      loadProducts();
-    });
-
-    /* EDIT */
-    div.querySelector(".editBtn").addEventListener("click", async (e) => {
-      const id = e.target.dataset.id;
-      const product = await ProductService.getProductById(id);
-
-      document.getElementById("productName").value = product.name;
-      document.getElementById("productDesc").value = product.description;
-
-      variantContainer.innerHTML = "";
-
-      product.variants.forEach(variant => {
-        const variantDiv = document.createElement("div");
-
-        variantDiv.innerHTML = `
-          <input type="text" class="variantName" value="${variant.name}">
-          <input type="number" class="variantPrice" value="${variant.price}">
-          <br><br>
-        `;
-
-        variantContainer.appendChild(variantDiv);
-      });
-
-      editMode = true;
-      currentEditId = id;
-
-      saveProductBtn.textContent = "Update Produk";
-      cancelEditBtn.style.display = "inline-block";
-    });
-
-    productList.appendChild(div);
+  formData.variants.forEach(v => {
+    product.addVariant(new Variant(v.name, v.price));
   });
-}
 
-/* ===============================
-   RESET FORM
-=================================*/
-function resetForm() {
-  document.getElementById("productName").value = "";
-  document.getElementById("productDesc").value = "";
-  variantContainer.innerHTML = "";
+  if (AdminState.editMode) {
+    await ProductService.updateProduct(AdminState.currentEditId, product);
+  } else {
+    await ProductService.saveProduct(product);
+  }
 
-  editMode = false;
-  currentEditId = null;
-
-  saveProductBtn.textContent = "Simpan Produk";
-  cancelEditBtn.style.display = "none";
-}
-
-/* ===============================
-   CANCEL EDIT
-=================================*/
-cancelEditBtn.addEventListener("click", () => {
-  resetForm();
+  AdminState.reset();
+  AdminUI.resetForm();
+  loadProducts();
 });
 
 /* ===============================
-   INIT LOAD
+   HANDLE EDIT
 =================================*/
+async function handleEdit(id) {
+  const product = await ProductService.getProductById(id);
+
+  AdminState.setEditMode(id);
+  AdminUI.fillForm(product);
+}
+
+/* ===============================
+   HANDLE DELETE
+=================================*/
+async function handleDelete(id) {
+  await ProductService.deleteProduct(id);
+  loadProducts();
+}
+
+/* ===============================
+   HANDLE CANCEL
+=================================*/
+cancelEditBtn.addEventListener("click", () => {
+  AdminState.reset();
+  AdminUI.resetForm();
+});
+
+/* ===============================
+   ADD VARIANT BUTTON
+=================================*/
+addVariantBtn.addEventListener("click", () => {
+  const container = document.getElementById("variantContainer");
+
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <input type="text" placeholder="Nama Varian" class="variantName">
+    <input type="number" placeholder="Harga" class="variantPrice">
+    <br><br>
+  `;
+
+  container.appendChild(div);
+});
+
+/* INIT */
 loadProducts();
