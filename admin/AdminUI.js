@@ -168,13 +168,11 @@ export const AdminUI = {
     return value.replace(/[^0-9]/g, "");
   },
 
-  attachPriceFormatter() {
+   attachPriceFormatter() {
     document.querySelectorAll(".variantPrice").forEach(input => {
-
       input.addEventListener("input", (e) => {
         e.target.value = this.formatRupiah(e.target.value);
       });
-
     });
   },
 
@@ -184,6 +182,8 @@ export const AdminUI = {
   attachImagePreview() {
     const fileInput = document.getElementById("productImage");
     const preview = document.getElementById("imagePreview");
+
+    if (!fileInput) return;
 
     fileInput.addEventListener("change", () => {
       const file = fileInput.files[0];
