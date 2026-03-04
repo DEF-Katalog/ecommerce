@@ -4,6 +4,9 @@ import { get } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-databas
 import { remove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 import { update } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
+import { storage } from "../firebase.js";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
+
 export class ProductService {
 
   static async saveProduct(product) {
