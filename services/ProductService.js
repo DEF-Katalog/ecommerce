@@ -3,6 +3,7 @@ import { ref, push, set } from "https://www.gstatic.com/firebasejs/12.10.0/fireb
 import { get } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 import { remove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 import { update } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { deleteObject, ref as storageRef } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
 
 import { storage } from "../firebase.js";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
@@ -55,5 +56,22 @@ export class ProductService {
   await uploadBytes(imageRef, file);
   return await getDownloadURL(imageRef);
 }
+
+  // untuk Delete Image dari firebase Storage
+  static async deleteImageByUrl(imageUrl) {
+  if (!imageUrl) return;
+
+    try {
+      const baseUrl = imageUrl.split("/o/")[1].split("?")[0];
+      const imagePath = decodeURIComponent(baseUrl);
+
+      const imageRef = storageRef(storage, imagePath);
+      await deleteObject(imageRef);
+
+      console.log("Gambar lama berhasil dihapus");
+    } catch (error) {
+      console.log("Gagal hapus gambar lama:", error);
+    }
+  }
   
 }
