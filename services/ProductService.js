@@ -48,4 +48,12 @@ export class ProductService {
   static async updateProduct(id, product) {
   await update(ref(db, "products/" + id), product);
 }
+
+  // untuk menyipan gambar dari firebase
+  static async uploadImage(file) {
+  const imageRef = storageRef(storage, "products/" + Date.now() + "_" + file.name);
+  await uploadBytes(imageRef, file);
+  return await getDownloadURL(imageRef);
+}
+  
 }
