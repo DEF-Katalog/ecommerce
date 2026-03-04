@@ -78,9 +78,10 @@ export const AdminUI = {
       const div = document.createElement("div");
       div.classList.add("product-card");
 
-      div.innerHTML = `
+    div.innerHTML = `
         <h3>${product.name}</h3>
         <p>${product.description}</p>
+            ${product.imageUrl ? `<img src="${product.imageUrl}" style="max-width:120px;">` : ""}
         <p>Total Varian: ${product.variants?.length || 0}</p>
         <button class="editBtn">Edit</button>
         <button class="deleteBtn">Delete</button>
